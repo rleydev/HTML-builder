@@ -1,28 +1,13 @@
+const fs = require('fs');
 const path = require('path');
-const fileName = 'new.txt';
-const { createWriteStream } = require('fs');
-const { createInterface } = require('readline');
-const { stdIn, stdOut, exit } = require('process');
-const outputFile = createWriteStream(path.join(__dirname, 'new.txt'), 'utf-8');
+const { stdin, stdout, exit } = process;
+const output = fs.createWriteStream(path.join(__dirname, 'text.txt'), 'utf-8');
 
-const rl = createInterface({
-  input: stdIn,
-  output: stdOut,
-})
-
-const stop = () => {
-  rl.write('Buy!');
-  rl.close();
-  outputFile.end();
-  exit(0);
-}
-
-rl.write(`What to write in ${fileName}? \n`);
-
-rl.on('line', (data) => {
-  data.trim().toLowerCase() === 'exit' ? stop() : outputFile.write(`${data}\n`);
+stdout.write('Type something to add the text in file...\n');
+stdin.on('data', data => {
+  if (data.toString().trim() === 'exit') exit();
+  output.write(data);
 });
 
-rl.on('SIGINT', () => {
-  stop();
-})
+process.on('exit', () => stdout.write('Your text has been added to file\n'));
+process.on('SIGINT', exit);
